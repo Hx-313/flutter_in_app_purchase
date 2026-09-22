@@ -1,0 +1,16 @@
+name: flutter_in_app_purchase_example
+description: Example app for flutter_in_app_purchase.
+publish_to: none
+
+environment:
+  sdk: ^3.12.2
+  flutter: ">=3.44.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_in_app_purchase:
+    path: ..
+
+flutter:
+  uses-material-design: true
