@@ -1,0 +1,21 @@
+name: flutter_in_app_purchase_bloc
+description: Optional BLoC adapter for flutter_in_app_purchase.
+version: 0.0.1
+publish_to: none
+
+environment:
+  sdk: ^3.12.2
+  flutter: ">=3.44.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  equatable: ^2.1.0
+  flutter_in_app_purchase:
+    path: ../..
+  flutter_bloc: ^8.1.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0

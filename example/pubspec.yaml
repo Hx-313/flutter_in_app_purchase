@@ -1,0 +1,25 @@
+name: flutter_in_app_purchase_example
+description: Example app for flutter_in_app_purchase.
+publish_to: none
+
+environment:
+  sdk: ^3.12.2
+  flutter: ">=3.44.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  shared_preferences: ^2.5.5
+  flutter_in_app_purchase:
+    path: ..
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/branding/ithx-app-icon.png
+    - assets/branding/ithx-wordmark-horizontal-lockup.png
