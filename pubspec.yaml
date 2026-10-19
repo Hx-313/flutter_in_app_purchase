@@ -1,6 +1,7 @@
 name: flutter_in_app_purchase
 description: "Cross-platform in-app purchases, durable entitlements, and verification hooks for Flutter."
 version: 0.0.1
+repository: https://github.com/Hx-313/flutter_in_app_purchase
 
 environment:
   sdk: ^3.12.2
