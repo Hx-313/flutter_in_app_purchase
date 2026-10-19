@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_in_app_purchase/flutter_in_app_purchase.dart';
+import 'package:smart_inapp_purchase/smart_inapp_purchase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:flutter_in_app_purchase_example/demo/demo_subscription_host.dart';

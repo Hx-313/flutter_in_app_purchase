@@ -78,7 +78,7 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_in_app_purchase:
+  smart_inapp_purchase:
     dependency: "direct main"
     description:
       path: ".."

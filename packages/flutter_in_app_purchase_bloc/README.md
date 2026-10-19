@@ -1,7 +1,7 @@
-# flutter_in_app_purchase_bloc
+# smart_inapp_purchase_bloc
 
 Optional BLoC integration for the state-neutral
-[`flutter_in_app_purchase`](../../README.md) core package. This adapter contains
+[`smart_inapp_purchase`](../../README.md) core package. This adapter contains
 the BLoC, its event types, `SubscriptionScope`, and BLoC composition helpers.
 The core package has no `flutter_bloc` dependency.
 
@@ -11,9 +11,9 @@ Add both packages to the consuming app:
 
 ```yaml
 dependencies:
-  flutter_in_app_purchase:
+  smart_inapp_purchase:
     path: ../flutter_in_app_purchase
-  flutter_in_app_purchase_bloc:
+  smart_inapp_purchase_bloc:
     path: ../flutter_in_app_purchase/packages/flutter_in_app_purchase_bloc
 ```
 
@@ -24,8 +24,8 @@ The adapter currently has `publish_to: none` in this repository.
 
 ```dart
 import 'package:flutter/material.dart';
-import 'package:flutter_in_app_purchase/flutter_in_app_purchase.dart';
-import 'package:flutter_in_app_purchase_bloc/flutter_in_app_purchase_bloc.dart';
+import 'package:smart_inapp_purchase/smart_inapp_purchase.dart';
+import 'package:smart_inapp_purchase_bloc/smart_inapp_purchase_bloc.dart';
 
 SubscriptionScope(
   config: SubscriptionConfig(

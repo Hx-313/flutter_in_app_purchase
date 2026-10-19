@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_app_purchase/in_app_purchase.dart' as iap;
-import 'package:flutter_in_app_purchase/features/subscriptions/data/datasources/in_app_purchase_purchase_mapper.dart';
-import 'package:flutter_in_app_purchase/flutter_in_app_purchase.dart';
+import 'package:smart_inapp_purchase/features/subscriptions/data/datasources/in_app_purchase_purchase_mapper.dart';
+import 'package:smart_inapp_purchase/smart_inapp_purchase.dart';
 
 void main() {
   test('mapsPurchaseStatusesAndMetadata', () {

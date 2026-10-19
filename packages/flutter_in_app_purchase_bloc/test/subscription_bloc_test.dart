@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_in_app_purchase/flutter_in_app_purchase.dart';
-import 'package:flutter_in_app_purchase_bloc/flutter_in_app_purchase_bloc.dart';
+import 'package:smart_inapp_purchase/smart_inapp_purchase.dart';
+import 'package:smart_inapp_purchase_bloc/smart_inapp_purchase_bloc.dart';
 
 class _Storage implements SubscriptionStorage {
   final pending = <String, ConsumableDelivery>{};

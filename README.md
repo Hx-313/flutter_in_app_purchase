@@ -26,7 +26,7 @@ Flutter. **Your app owns the paywall design, navigation, and backend.**
 
 ## What this package does
 
-`flutter_in_app_purchase` gives a Flutter app a store-neutral API for loading
+`smart_inapp_purchase` gives a Flutter app a store-neutral API for loading
 products, starting purchases, restoring purchases, tracking durable access,
 and handing off consumable purchases for fulfillment. It is built on Flutter's
 [`in_app_purchase`](https://pub.dev/packages/in_app_purchase) plugin.
@@ -89,14 +89,14 @@ Web, Windows, and Linux store purchasing are not supported by this package.
 From your Flutter app directory, run:
 
 ```sh
-flutter pub add flutter_in_app_purchase
+flutter pub add smart_inapp_purchase
 ```
 
 Or add the dependency manually to `pubspec.yaml` and run `flutter pub get`:
 
 ```yaml
 dependencies:
-  flutter_in_app_purchase: ^0.0.1
+  smart_inapp_purchase: ^0.0.1
 ```
 
 > This package is currently pre-1.0.0. Review release notes before upgrading;
@@ -111,7 +111,7 @@ Google Play Console. Entitlement IDs are names chosen by your app; several
 products can grant the same entitlement.
 
 ```dart
-import 'package:flutter_in_app_purchase/flutter_in_app_purchase.dart';
+import 'package:smart_inapp_purchase/smart_inapp_purchase.dart';
 
 final config = SubscriptionConfig(
   products: const [

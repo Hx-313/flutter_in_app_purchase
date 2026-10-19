@@ -1,7 +1,7 @@
 # Unreleased
 
 * Expose immutable subscription snapshots and a state-neutral widget builder.
-* Move BLoC integration into the optional `flutter_in_app_purchase_bloc` package.
+* Move BLoC integration into the optional `smart_inapp_purchase_bloc` package.
 * Keep paywall presentation and navigation in the host app; move UI templates to the example.
 * Add an ITHX-branded showcase with a durable simulated purchase and restore flow.
 * Persist verified purchases before native completion and report rejected restores as failures.
@@ -10,7 +10,7 @@
 * Preserve purchase mapping diagnostics and cover purchase lifecycle reliability.
 
 This release removes the BLoC and opinionated paywall UI exports from the core
-package. Add `flutter_in_app_purchase_bloc` separately if your app uses BLoC.
+package. Add `smart_inapp_purchase_bloc` separately if your app uses BLoC.
 
 ## 0.0.1
 

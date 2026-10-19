@@ -4,7 +4,7 @@ import 'subscription_body.dart';
 import 'subscription_plan_content.dart';
 import 'subscription_strings.dart';
 import 'subscription_theme.dart';
-import 'package:flutter_in_app_purchase/flutter_in_app_purchase.dart';
+import 'package:smart_inapp_purchase/smart_inapp_purchase.dart';
 
 /// Opinionated, theme-aware subscription lifecycle screen.
 class SubscriptionPage extends StatelessWidget {

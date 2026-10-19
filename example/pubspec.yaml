@@ -1,5 +1,5 @@
 name: flutter_in_app_purchase_example
-description: Example app for flutter_in_app_purchase.
+description: Example app for smart_inapp_purchase.
 publish_to: none
 
 environment:
@@ -10,7 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   shared_preferences: ^2.5.5
-  flutter_in_app_purchase:
+  smart_inapp_purchase:
     path: ..
 
 dev_dependencies:
