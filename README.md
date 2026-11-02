@@ -16,6 +16,7 @@ Flutter. **Your app owns the paywall design, navigation, and backend.**
 - [Requirements](#requirements)
 - [Install](#install)
 - [Quick start](#quick-start)
+- [Hands-off setup](#hands-off-setup)
 - [Build your own paywall](#build-your-own-paywall)
 - [Handle purchases and consumables](#handle-purchases-and-consumables)
 - [Add backend verification](#add-backend-verification)
@@ -196,11 +197,74 @@ SubscriptionBuilder(
 )
 ```
 
-`purchase(productId)` returns whether the store accepted the purchase request;
-it does not mean the purchase completed. Observe `snapshot.lastResult` or
-`service.purchaseResultStream` for the eventual success, pending, cancellation,
-or error result. `restore()` returns a `RestoreResult` and also updates the
+`purchase(productId)` returns a `PurchaseResult` once the store reports the
+outcome for that product; deferred payments such as Ask to Buy resolve with
+`pending`. Observe `snapshot.lastResult` or `service.purchaseResultStream` for
+the same result. `restore()` returns a `RestoreResult` and also updates the
 snapshot.
+
+## Hands-off setup
+
+Most apps need one provider line plus their own UI. The provider creates the
+service, initializes it, keeps listening while the app runs, and disposes it, so
+purchases that finish while no paywall is visible are still processed.
+
+```dart
+SubscriptionProvider(
+  config: config,
+  callbacks: SubscriptionCallbacks(
+    onPurchaseSuccess: (result) => analytics.track('purchase', result.status),
+  ),
+  child: const MyApp(),
+)
+```
+
+Any screen then renders state and calls guarded commands without touching
+stores, streams, or listeners:
+
+```dart
+SubscriptionView(
+  builder: (context, state) {
+    if (state.isLoading) return const LoadingPlans();
+    return PlanList(
+      products: state.products,
+      hasAccess: state.hasAccess,
+      busy: state.isBusy,
+      message: state.statusMessage,
+      onBuy: (id) => state.purchase(id),
+      onRestore: state.restore,
+    );
+  },
+)
+```
+
+Gate premium content with no logic at all:
+
+```dart
+PremiumGate(
+  entitlementId: 'premium', // optional; defaults to the configured default
+  child: const ProFeature(),
+  locked: (context) => const UpgradeBanner(),
+)
+```
+
+Callbacks are the customization surface, and the package acts on what they
+return:
+
+- `beforePurchase(productId)` — return `false` to cancel before the store is
+  contacted.
+- `onConsumablePurchased(delivery)` — grant the item, then return `true`; the
+  package acknowledges, consumes, and finishes the store transaction. Return
+  `false`, or throw, to keep the delivery pending for a later retry.
+- `onPurchaseSuccess`, `onPurchasePending`, `onPurchaseCanceled`,
+  `onPurchaseError`, `onRestoreFinished`, `onAccessChanged` — observe outcomes.
+- `onReady`, `onStoreUnavailable`, `onInitializationFailed` — react to lifecycle.
+- `messageBuilder` — localize `state.statusMessage`.
+
+`SubscriptionProvider` compares configs by value, so building an equal
+`SubscriptionConfig` inside `build()` does not recreate or re-initialize the
+service. The lower-level `SubscriptionService` and `SubscriptionBuilder` APIs
+remain available for custom architectures.
 
 ## Build your own paywall
 
@@ -220,8 +284,27 @@ simulated lock → paywall → purchase → unlock flow.
 ## Handle purchases and consumables
 
 Durable products update the entitlement snapshot after verification. For
-consumables, the package creates a pending delivery; fulfill it idempotently
-before acknowledging it so the app can safely recover after interruption:
+consumables, the package stages a pending delivery and **waits for your host to
+fulfill it before acknowledging the store transaction**. With
+`SubscriptionProvider`, that handoff is one callback:
+
+```dart
+SubscriptionCallbacks(
+  onConsumablePurchased: (delivery) async {
+    await inventory.addOnce(
+      idempotencyKey: delivery.purchaseId,
+      productId: delivery.productId,
+    );
+    return true; // the package acknowledges and consumes the purchase
+  },
+)
+```
+
+Return `false` or throw to leave the purchase pending; it is retried on a later
+launch, or immediately through
+`SubscriptionProvider.of(context).retryPendingConsumables()`.
+
+Without the provider, do the same sequence explicitly:
 
 ```dart
 for (final delivery in service.snapshot.pendingConsumables) {

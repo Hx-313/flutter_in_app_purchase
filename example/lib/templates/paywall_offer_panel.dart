@@ -4,17 +4,19 @@ import 'package:smart_inapp_purchase/smart_inapp_purchase.dart';
 import '../ithx_theme.dart';
 import 'paywall_plan_card.dart';
 
+/// Paywall UI built with the hands-off `SubscriptionView` API.
+///
+/// The panel renders state and calls guarded commands; it never creates,
+/// initializes, listens to, or disposes a service.
 class PaywallOfferPanel extends StatefulWidget {
   const PaywallOfferPanel({
     super.key,
-    required this.service,
     required this.onClose,
     this.dark = false,
     this.compact = false,
     this.onAccessGranted,
   });
 
-  final SubscriptionService service;
   final VoidCallback onClose;
   final VoidCallback? onAccessGranted;
   final bool dark;
@@ -28,10 +30,9 @@ class _PaywallOfferPanelState extends State<PaywallOfferPanel> {
   String? _selectedProductId;
 
   @override
-  Widget build(BuildContext context) => SubscriptionBuilder(
-    service: widget.service,
-    builder: (context, snapshot) {
-      final products = snapshot.products.toList()
+  Widget build(BuildContext context) => SubscriptionView(
+    builder: (context, state) {
+      final products = state.products.toList()
         ..sort(
           (a, b) => (b.definition?.priority ?? 0).compareTo(
             a.definition?.priority ?? 0,
@@ -46,7 +47,9 @@ class _PaywallOfferPanelState extends State<PaywallOfferPanel> {
       );
       final foreground = widget.dark ? IthxPalette.cream : IthxPalette.forest;
       final muted = widget.dark ? IthxPalette.mutedOnDark : IthxPalette.muted;
-      final accessActive = snapshot.hasAccess('premium');
+      final accessActive = state.hasAccessTo('premium');
+      final statusMessage = state.statusMessage;
+      final statusIsError = state.lastResult?.status.isError ?? false;
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -112,9 +115,9 @@ class _PaywallOfferPanelState extends State<PaywallOfferPanel> {
           FilledButton(
             onPressed: accessActive
                 ? (widget.onAccessGranted ?? widget.onClose)
-                : snapshot.isPurchasing || selectedProduct == null
+                : state.isBusy || selectedProduct == null
                 ? null
-                : () => _purchase(selectedProduct.id),
+                : () => state.purchase(selectedProduct.id),
             style: FilledButton.styleFrom(
               backgroundColor: widget.dark
                   ? IthxPalette.cream
@@ -124,7 +127,7 @@ class _PaywallOfferPanelState extends State<PaywallOfferPanel> {
                   : IthxPalette.cream,
               minimumSize: const Size.fromHeight(54),
             ),
-            child: snapshot.isPurchasing
+            child: state.isPurchasing
                 ? const SizedBox(
                     width: 22,
                     height: 22,
@@ -134,21 +137,21 @@ class _PaywallOfferPanelState extends State<PaywallOfferPanel> {
           ),
           const SizedBox(height: 8),
           TextButton(
-            onPressed: snapshot.isRestoring ? null : _restore,
+            onPressed: state.isBusy ? null : state.restore,
             child: Text(
-              snapshot.isRestoring ? 'Restoring…' : 'Restore purchases',
+              state.isRestoring ? 'Restoring…' : 'Restore purchases',
               style: TextStyle(color: foreground),
             ),
           ),
-          if (snapshot.lastResult != null) ...[
+          if (statusMessage != null) ...[
             const SizedBox(height: 6),
             Semantics(
               liveRegion: true,
               child: Text(
-                _resultMessage(snapshot),
+                statusMessage,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: snapshot.lastResult!.status.isError
+                  color: statusIsError
                       ? (widget.dark
                             ? const Color(0xFFFFB4AB)
                             : IthxPalette.danger)
@@ -169,35 +172,6 @@ class _PaywallOfferPanelState extends State<PaywallOfferPanel> {
       );
     },
   );
-
-  Future<void> _purchase(String productId) async {
-    try {
-      await widget.service.purchase(productId);
-    } catch (_) {
-      // The service emits the operation state; the host can log its own errors.
-    }
-  }
-
-  Future<void> _restore() async {
-    try {
-      await widget.service.restore();
-    } catch (_) {
-      // The service snapshot exposes the restore result to this view.
-    }
-  }
-
-  String _resultMessage(SubscriptionSnapshot snapshot) {
-    final result = snapshot.lastResult!;
-    if (result.message != null) return result.message!;
-    return switch (result.status) {
-      PurchaseStatus.success => 'Premium unlocked successfully.',
-      PurchaseStatus.restored => 'Premium access restored.',
-      PurchaseStatus.alreadyOwned => 'Premium is already active.',
-      PurchaseStatus.canceled => 'Purchase canceled.',
-      PurchaseStatus.pending => 'Purchase is pending.',
-      _ => 'No previous purchase was found.',
-    };
-  }
 }
 
 class _BenefitLine extends StatelessWidget {

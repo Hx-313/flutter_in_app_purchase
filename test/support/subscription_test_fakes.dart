@@ -89,6 +89,8 @@ final class TestSubscriptionStore implements StoreDataSource {
   List<StorePurchase> restorePurchases = const [];
   List<StorePurchase> existingPurchases = const [];
   int completionCount = 0;
+  int initializeCount = 0;
+  int purchaseCount = 0;
 
   final _updates = StreamController<StorePurchase>.broadcast();
 
@@ -106,11 +108,14 @@ final class TestSubscriptionStore implements StoreDataSource {
 
   @override
   Future<void> initialize(List<ProductDefinition> products) async {
+    initializeCount++;
     if (failInitialization) throw StateError('initialization failed');
   }
 
   @override
-  Future<void> purchase(String productId) async {}
+  Future<void> purchase(String productId) async {
+    purchaseCount++;
+  }
 
   @override
   Future<void> restore() async {

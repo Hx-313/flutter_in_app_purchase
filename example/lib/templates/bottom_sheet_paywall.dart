@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:smart_inapp_purchase/smart_inapp_purchase.dart';
 
 import '../ithx_theme.dart';
 import 'paywall_offer_panel.dart';
@@ -7,12 +6,10 @@ import 'paywall_offer_panel.dart';
 class BottomSheetPaywall extends StatelessWidget {
   const BottomSheetPaywall({
     super.key,
-    required this.service,
     required this.onClose,
     this.onAccessGranted,
   });
 
-  final SubscriptionService service;
   final VoidCallback onClose;
   final VoidCallback? onAccessGranted;
 
@@ -47,7 +44,6 @@ class BottomSheetPaywall extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 PaywallOfferPanel(
-                  service: service,
                   onClose: onClose,
                   onAccessGranted: onAccessGranted,
                   compact: true,

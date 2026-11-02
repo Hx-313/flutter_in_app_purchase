@@ -52,7 +52,8 @@ void main() {
       final subscription = service.snapshotStream.listen(snapshots.add);
       await service.initialize();
 
-      await service.purchase('pro_lifetime');
+      final purchase = service.purchase('pro_lifetime');
+      await flushSubscriptionEvents();
       expect(service.snapshot.isPurchasing, isTrue);
       store.emit(
         const StorePurchase(
@@ -62,6 +63,7 @@ void main() {
         ),
       );
       await flushSubscriptionEvents();
+      expect((await purchase).status, PurchaseStatus.success);
       expect(service.snapshot.isPurchasing, isFalse);
       expect(service.snapshot.hasAccess('premium'), isTrue);
       expect(service.snapshot.lastResult?.status, PurchaseStatus.success);

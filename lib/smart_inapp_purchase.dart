@@ -16,4 +16,10 @@ export 'features/subscriptions/data/datasources/shared_preferences_subscription_
 export 'features/subscriptions/data/repositories/subscription_repository_impl.dart';
 export 'features/subscriptions/domain/usecases/subscription_service.dart';
 export 'features/subscriptions/subscription_module.dart';
+export 'features/subscriptions/presentation/controllers/subscription_controller.dart';
+export 'features/subscriptions/presentation/entities/subscription_callbacks.dart';
+export 'features/subscriptions/presentation/entities/subscription_view_state.dart';
+export 'features/subscriptions/presentation/widgets/premium_gate.dart';
 export 'features/subscriptions/presentation/widgets/subscription_builder.dart';
+export 'features/subscriptions/presentation/widgets/subscription_provider.dart';
+export 'features/subscriptions/presentation/widgets/subscription_view.dart';

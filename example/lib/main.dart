@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:smart_inapp_purchase/smart_inapp_purchase.dart';
 
 import 'demo/demo_subscription_host.dart';
 import 'ithx_theme.dart';
@@ -13,30 +12,26 @@ import 'templates/full_screen_paywall.dart';
 void main() {
   runApp(
     DemoSubscriptionHost(
-      builder: (context, service) => MaterialApp(
+      builder: (context, _) => MaterialApp(
         title: 'ITHX · ACT ETHICALLY',
         theme: buildIthxTheme(),
-        home: SplashScreen(
-          nextScreenBuilder: (_) => _ShowcaseRouter(service: service),
-        ),
+        home: const SplashScreen(nextScreenBuilder: _buildShowcaseRouter),
       ),
     ),
   );
 }
 
-class _ShowcaseRouter extends StatelessWidget {
-  const _ShowcaseRouter({required this.service});
+Widget _buildShowcaseRouter(BuildContext context) => const _ShowcaseRouter();
 
-  final SubscriptionService service;
+class _ShowcaseRouter extends StatelessWidget {
+  const _ShowcaseRouter();
 
   @override
   Widget build(BuildContext context) => ShowcaseHomeScreen(
-    service: service,
     onOpenTemplate: (template) => _openTemplate(context, template),
     onOpenLockedFeature: () => Navigator.of(context).push<void>(
       MaterialPageRoute<void>(
         builder: (context) => LockedFeatureScreen(
-          service: service,
           onUnlock: () => _openTemplate(context, PaywallTemplate.fullScreen),
         ),
       ),
@@ -49,7 +44,6 @@ class _ShowcaseRouter extends StatelessWidget {
         Navigator.of(context).push<void>(
           MaterialPageRoute<void>(
             builder: (routeContext) => FullScreenPaywall(
-              service: service,
               onClose: () => Navigator.of(routeContext).pop(),
               onAccessGranted: () => Navigator.of(routeContext).pop(),
             ),
@@ -59,7 +53,6 @@ class _ShowcaseRouter extends StatelessWidget {
         showDialog<void>(
           context: context,
           builder: (dialogContext) => DialogPaywall(
-            service: service,
             onClose: () => Navigator.of(dialogContext).pop(),
             onAccessGranted: () => Navigator.of(dialogContext).pop(),
           ),
@@ -71,7 +64,6 @@ class _ShowcaseRouter extends StatelessWidget {
           useSafeArea: true,
           backgroundColor: Colors.transparent,
           builder: (sheetContext) => BottomSheetPaywall(
-            service: service,
             onClose: () => Navigator.of(sheetContext).pop(),
             onAccessGranted: () => Navigator.of(sheetContext).pop(),
           ),

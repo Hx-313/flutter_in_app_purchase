@@ -78,13 +78,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  smart_inapp_purchase:
-    dependency: "direct main"
-    description:
-      path: ".."
-      relative: true
-    source: path
-    version: "0.0.1"
   flutter_lints:
     dependency: "direct dev"
     description:
@@ -308,6 +301,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  smart_inapp_purchase:
+    dependency: "direct main"
+    description:
+      path: ".."
+      relative: true
+    source: path
+    version: "0.0.1"
   source_span:
     dependency: transitive
     description:

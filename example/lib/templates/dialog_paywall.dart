@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:smart_inapp_purchase/smart_inapp_purchase.dart';
 
 import '../ithx_theme.dart';
 import 'paywall_offer_panel.dart';
@@ -7,12 +6,10 @@ import 'paywall_offer_panel.dart';
 class DialogPaywall extends StatelessWidget {
   const DialogPaywall({
     super.key,
-    required this.service,
     required this.onClose,
     this.onAccessGranted,
   });
 
-  final SubscriptionService service;
   final VoidCallback onClose;
   final VoidCallback? onAccessGranted;
 
@@ -28,7 +25,6 @@ class DialogPaywall extends StatelessWidget {
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 22),
           child: PaywallOfferPanel(
-            service: service,
             onClose: onClose,
             onAccessGranted: onAccessGranted,
             compact: true,

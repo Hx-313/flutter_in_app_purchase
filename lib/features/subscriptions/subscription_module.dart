@@ -19,6 +19,7 @@ final class SubscriptionModule {
     StoreDataSource? store,
     SubscriptionStorageDataSource? storage,
     PurchaseVerifier? verifier,
+    Duration purchaseTimeout = const Duration(minutes: 2),
   }) {
     final resolvedRepository =
         repository ??
@@ -30,6 +31,7 @@ final class SubscriptionModule {
       config: config,
       repository: resolvedRepository,
       verifier: verifier,
+      purchaseTimeout: purchaseTimeout,
     );
   }
 }

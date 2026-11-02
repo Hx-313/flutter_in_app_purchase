@@ -1,5 +1,15 @@
 # Unreleased
 
+* Add `SubscriptionProvider`, `SubscriptionView`, and `PremiumGate` so a host app
+  supplies only UI while the package owns service creation, initialization,
+  listening, callbacks, and disposal.
+* Add `SubscriptionCallbacks`, a `SubscriptionViewState` view model with guarded
+  purchase/restore commands, and an optional `messageBuilder` for localized text.
+* Acknowledge consumable purchases only after `onConsumablePurchased` returns
+  `true`, keeping failed fulfillment pending for retry.
+* `SubscriptionService.purchase` now returns a `PurchaseResult` (previously
+  `bool`) and resolves when the store reports an outcome; restore and
+  acknowledge calls report failures instead of throwing before initialization.
 * Expose immutable subscription snapshots and a state-neutral widget builder.
 * Move BLoC integration into the optional `smart_inapp_purchase_bloc` package.
 * Keep paywall presentation and navigation in the host app; move UI templates to the example.

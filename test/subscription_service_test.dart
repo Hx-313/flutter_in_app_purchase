@@ -140,6 +140,9 @@ void main() {
       expect(results.single.status, PurchaseStatus.success);
       expect(results.single.entitlement, isNull);
       expect(service.entitlements, isEmpty);
+      expect(store.completeCount, 0);
+
+      await service.acknowledgeConsumablePurchase('purchase-coins_100');
       expect(store.completeCount, 1);
 
       await subscription.cancel();

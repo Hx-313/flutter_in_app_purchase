@@ -34,11 +34,15 @@ final class SubscriptionService {
     required this.config,
     required this.repository,
     this.verifier,
+    this.purchaseTimeout = const Duration(minutes: 2),
   });
 
   final SubscriptionConfig config;
   final SubscriptionRepository repository;
   final PurchaseVerifier? verifier;
+
+  /// How long [purchase] waits for the store to report an outcome.
+  final Duration purchaseTimeout;
 
   final _entitlementController =
       StreamController<Map<String, Entitlement>>.broadcast();
@@ -52,6 +56,10 @@ final class SubscriptionService {
   Timer? _expiryTimer;
   Future<void>? _processing;
   final Set<String> _reconciliationPurchaseIds = <String>{};
+  final Map<String, Completer<PurchaseResult>> _purchaseCompleters =
+      <String, Completer<PurchaseResult>>{};
+  final Map<String, StorePurchase> _deferredCompletions =
+      <String, StorePurchase>{};
   Map<String, Entitlement> _entitlements = <String, Entitlement>{};
   List<ConsumableDelivery> _pendingConsumables = const [];
   List<StoreProduct> _products = const <StoreProduct>[];
@@ -140,34 +148,44 @@ final class SubscriptionService {
     }
   }
 
-  Future<bool> purchase(String productId) async {
-    _ensureNotDisposed();
+  Future<PurchaseResult> purchase(String productId) async {
+    if (_disposed) {
+      return PurchaseResult(
+        status: PurchaseStatus.error,
+        productId: productId,
+        message: 'The subscription service is disposed.',
+      );
+    }
     final definition = config.getProduct(productId);
     if (definition == null) {
-      _emitResult(
+      return _emitImmediate(
         PurchaseResult(
           status: PurchaseStatus.notAvailable,
           productId: productId,
           message: 'Product is not configured.',
         ),
       );
-      return false;
     }
     if (!isStoreAvailable) {
-      _emitResult(
+      return _emitImmediate(
         PurchaseResult(
           status: PurchaseStatus.notAvailable,
           productId: productId,
           message: 'The store is unavailable.',
         ),
       );
-      return false;
     }
-    _ensureInitialized();
+    if (!_initialized) {
+      return PurchaseResult(
+        status: PurchaseStatus.notAvailable,
+        productId: productId,
+        message: 'The subscription service is not ready yet.',
+      );
+    }
     final entitlementId = definition.entitlementId;
     if (entitlementId != null &&
         _entitlements[entitlementId]?.hasAccess == true) {
-      _emitResult(
+      return _emitImmediate(
         PurchaseResult(
           status: PurchaseStatus.alreadyOwned,
           productId: productId,
@@ -175,30 +193,67 @@ final class SubscriptionService {
           message: 'The entitlement is already active.',
         ),
       );
-      return false;
+    }
+    if (_isPurchasing || _isRestoring) {
+      return PurchaseResult(
+        status: PurchaseStatus.error,
+        productId: productId,
+        message: 'Another purchase or restore is already in progress.',
+      );
     }
 
     _isPurchasing = true;
     _errorMessage = null;
     _emitSnapshot();
+    final completer = Completer<PurchaseResult>();
+    _purchaseCompleters[productId] = completer;
     try {
       await repository.purchase(productId);
-      return true;
     } catch (error) {
+      _purchaseCompleters.remove(productId);
       _isPurchasing = false;
-      _emitResult(
+      return _emitImmediate(
         PurchaseResult(
           status: PurchaseStatus.error,
           productId: productId,
           message: error.toString(),
         ),
       );
-      return false;
+    }
+
+    try {
+      return await completer.future.timeout(purchaseTimeout);
+    } on TimeoutException {
+      _purchaseCompleters.remove(productId);
+      _isPurchasing = false;
+      return _emitImmediate(
+        PurchaseResult(
+          status: PurchaseStatus.error,
+          productId: productId,
+          message: 'The store did not report an outcome in time.',
+        ),
+      );
     }
   }
 
+  PurchaseResult _emitImmediate(PurchaseResult result) {
+    _emitResult(result);
+    return result;
+  }
+
   Future<RestoreResult> restore() async {
-    _ensureInitialized();
+    if (_disposed) {
+      return const RestoreResult(
+        status: RestoreStatus.failure,
+        message: 'The subscription service is disposed.',
+      );
+    }
+    if (!_initialized) {
+      return const RestoreResult(
+        status: RestoreStatus.failure,
+        message: 'The subscription service is not ready yet.',
+      );
+    }
     _isRestoring = true;
     _lastRestoreStatus = null;
     _errorMessage = null;
@@ -253,7 +308,7 @@ final class SubscriptionService {
   }
 
   Future<void> refresh() async {
-    _ensureInitialized();
+    if (_disposed || !_initialized) return;
     _isRefreshing = true;
     _errorMessage = null;
     _emitSnapshot();
@@ -285,7 +340,20 @@ final class SubscriptionService {
   }
 
   Future<void> acknowledgeConsumablePurchase(String purchaseId) async {
-    _ensureInitialized();
+    if (_disposed || !_initialized) return;
+
+    final deferred = _deferredCompletions[purchaseId];
+    if (deferred != null) {
+      try {
+        await _completeIfNeeded(deferred);
+      } on Object {
+        // Keep the delivery staged so the acknowledgement can be retried.
+        _deferredCompletions[purchaseId] = deferred;
+        rethrow;
+      }
+      _deferredCompletions.remove(purchaseId);
+    }
+
     await repository.acknowledgeConsumable(purchaseId);
     _pendingConsumables = _pendingConsumables
         .where((delivery) => delivery.purchaseId != purchaseId)
@@ -405,7 +473,18 @@ final class SubscriptionService {
             : _entitlements[definition.entitlementId];
       }
       _isPurchasing = false;
-      await _completeIfNeeded(purchase);
+      _completePendingPurchase(
+        purchase.productId,
+        PurchaseResult(
+          status: PurchaseStatus.success,
+          productId: purchase.productId,
+          entitlement: definition.entitlementId == null
+              ? null
+              : _entitlements[definition.entitlementId],
+          storePurchaseId: purchaseId,
+        ),
+      );
+      await _finishPurchase(definition, purchaseId, purchase);
       _emitSnapshot();
       return;
     }
@@ -479,6 +558,25 @@ final class SubscriptionService {
           storePurchaseId: purchaseId,
         ),
       );
+    }
+    await _finishPurchase(definition, purchaseId, purchase);
+  }
+
+  /// Completes the store transaction, or defers it for consumables until the
+  /// host acknowledges fulfillment.
+  Future<void> _finishPurchase(
+    ProductDefinition definition,
+    String purchaseId,
+    StorePurchase purchase,
+  ) async {
+    if (definition.isConsumable) {
+      final hasPendingDelivery = _pendingConsumables.any(
+        (delivery) => delivery.purchaseId == purchaseId,
+      );
+      if (hasPendingDelivery) {
+        _deferredCompletions[purchaseId] = purchase;
+        return;
+      }
     }
     await _completeIfNeeded(purchase);
   }
@@ -662,8 +760,17 @@ final class SubscriptionService {
     _lastResult = result;
     _lastRestoreStatus = null;
     _errorMessage = result.status.isError ? result.message : null;
+    final productId = result.productId;
+    if (productId != null) _completePendingPurchase(productId, result);
     if (!_resultController.isClosed) _resultController.add(result);
     _emitSnapshot();
+  }
+
+  void _completePendingPurchase(String productId, PurchaseResult result) {
+    final completer = _purchaseCompleters.remove(productId);
+    if (completer != null && !completer.isCompleted) {
+      completer.complete(result);
+    }
   }
 
   void _emitSnapshot() {
@@ -685,13 +792,6 @@ final class SubscriptionService {
 
   bool get _shouldSuppressSuccess => _isRestoring || _isRefreshing;
 
-  void _ensureInitialized() {
-    _ensureNotDisposed();
-    if (!_initialized) {
-      throw StateError('SubscriptionService is not initialized');
-    }
-  }
-
   void _ensureNotDisposed() {
     if (_disposed) throw StateError('SubscriptionService is disposed');
   }
@@ -699,6 +799,18 @@ final class SubscriptionService {
   Future<void> dispose() async {
     if (_disposed) return;
     _disposed = true;
+    for (final completer in _purchaseCompleters.values) {
+      if (!completer.isCompleted) {
+        completer.complete(
+          PurchaseResult(
+            status: PurchaseStatus.error,
+            message: 'The subscription service was disposed.',
+          ),
+        );
+      }
+    }
+    _purchaseCompleters.clear();
+    _deferredCompletions.clear();
     _phase = SubscriptionPhase.disposed;
     _emitSnapshot();
     _expiryTimer?.cancel();

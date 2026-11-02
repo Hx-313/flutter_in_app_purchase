@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:smart_inapp_purchase/smart_inapp_purchase.dart';
 
 import '../ithx_theme.dart';
 import 'paywall_offer_panel.dart';
@@ -7,12 +6,10 @@ import 'paywall_offer_panel.dart';
 class FullScreenPaywall extends StatelessWidget {
   const FullScreenPaywall({
     super.key,
-    required this.service,
     required this.onClose,
     this.onAccessGranted,
   });
 
-  final SubscriptionService service;
   final VoidCallback onClose;
   final VoidCallback? onAccessGranted;
 
@@ -27,7 +24,6 @@ class FullScreenPaywall extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(22, 10, 22, 30),
             children: [
               PaywallOfferPanel(
-                service: service,
                 onClose: onClose,
                 onAccessGranted: onAccessGranted,
                 dark: true,

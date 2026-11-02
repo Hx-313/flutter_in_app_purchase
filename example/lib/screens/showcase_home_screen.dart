@@ -8,21 +8,18 @@ enum PaywallTemplate { fullScreen, dialog, bottomSheet }
 class ShowcaseHomeScreen extends StatelessWidget {
   const ShowcaseHomeScreen({
     super.key,
-    required this.service,
     required this.onOpenTemplate,
     required this.onOpenLockedFeature,
   });
 
-  final SubscriptionService service;
   final ValueChanged<PaywallTemplate> onOpenTemplate;
   final VoidCallback onOpenLockedFeature;
 
   @override
   Widget build(BuildContext context) => Scaffold(
     body: SafeArea(
-      child: SubscriptionBuilder(
-        service: service,
-        builder: (context, snapshot) => ListView(
+      child: SubscriptionView(
+        builder: (context, state) => ListView(
           padding: const EdgeInsets.fromLTRB(22, 18, 22, 32),
           children: [
             Semantics(
@@ -45,10 +42,10 @@ class ShowcaseHomeScreen extends StatelessWidget {
                 ),
                 const SizedBox(width: 10),
                 _Badge(
-                  label: snapshot.hasAccess('premium')
+                  label: state.hasAccessTo('premium')
                       ? 'PREMIUM ACTIVE'
                       : 'PREMIUM LOCKED',
-                  foreground: snapshot.hasAccess('premium')
+                  foreground: state.hasAccessTo('premium')
                       ? IthxPalette.success
                       : IthxPalette.muted,
                   background: Colors.white,
@@ -109,7 +106,7 @@ class ShowcaseHomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 18),
             Text(
-              _stateDescription(snapshot),
+              _stateDescription(state),
               textAlign: TextAlign.center,
               style: Theme.of(
                 context,
@@ -121,15 +118,14 @@ class ShowcaseHomeScreen extends StatelessWidget {
     ),
   );
 
-  String _stateDescription(SubscriptionSnapshot snapshot) {
-    if (snapshot.phase == SubscriptionPhase.initializing ||
-        snapshot.phase == SubscriptionPhase.idle) {
+  String _stateDescription(SubscriptionViewState state) {
+    if (state.isLoading) {
       return 'Loading demo products…';
     }
-    if (snapshot.phase == SubscriptionPhase.failure) {
-      return snapshot.errorMessage ?? 'Demo products could not be loaded.';
+    if (state.hasError) {
+      return state.errorMessage ?? 'Demo products could not be loaded.';
     }
-    return snapshot.hasAccess('premium')
+    return state.hasAccessTo('premium')
         ? 'Premium access is active on this device.'
         : 'Purchases run locally and unlock this sample feature.';
   }

@@ -425,6 +425,11 @@ void main() {
 
     expect(service.pendingConsumables.single.purchaseId, 'coins-order-1');
     expect(storage.calls, ['savePendingConsumable', 'markPurchaseProcessed']);
+    expect(store.calls, isEmpty);
+
+    await service.acknowledgeConsumablePurchase('coins-order-1');
+
+    expect(service.pendingConsumables, isEmpty);
     expect(store.calls, ['complete']);
     await service.dispose();
   });
@@ -525,12 +530,13 @@ void main() {
     );
     await _flush();
     expect(service.pendingConsumables, hasLength(1));
-    expect(store.calls, ['complete']);
+    expect(store.calls, isEmpty);
 
     await service.acknowledgeConsumablePurchase('coins-order-1');
 
     expect(service.pendingConsumables, isEmpty);
     expect(storage.pendingConsumables, isEmpty);
+    expect(store.calls, ['complete']);
     await service.dispose();
   });
 

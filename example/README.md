@@ -1,10 +1,10 @@
 # ITHX subscription showcase
 
-This example demonstrates a state-neutral subscription service with an
-app-owned splash screen, home gallery, and three independently styled paywall
-presentations. The full-screen page, dialog, bottom sheet, and locked-feature
-navigation all live in the example app. The core package supplies purchase
-state and operations only.
+This example demonstrates the hands-off setup: one `SubscriptionProvider` owns
+the subscription service, and the app supplies only UI. The splash screen, home
+gallery, three paywall presentations, and locked-feature navigation all live in
+the example app. The package handles initialization, purchase and restore state,
+consumable fulfillment, and disposal.
 
 ## Run
 
@@ -34,18 +34,21 @@ do not ship it in a production app.
 - `templates/full_screen_paywall.dart` shows a full-screen purchase flow.
 - `templates/dialog_paywall.dart` shows a constrained, scrollable dialog.
 - `templates/bottom_sheet_paywall.dart` shows a safe-area-aware sheet.
-- `screens/locked_feature_screen.dart` shows the lock → paywall → purchase →
-  unlock path.
+- `templates/paywall_offer_panel.dart` shows the shared plan picker built with
+  `SubscriptionView`.
+- `screens/locked_feature_screen.dart` shows entitlement gating with
+  `PremiumGate`.
 
-`DemoSubscriptionHost` creates and initializes one state-neutral
-`SubscriptionService`. The host owns that service's lifetime. Paywall widgets
-receive the service and use `SubscriptionBuilder`; the core builder does not
-open or dismiss routes, dialogs, or sheets.
+`DemoSubscriptionHost` wraps the app in `SubscriptionProvider`, which creates,
+initializes, listens to, and disposes the service. The templates never create or
+dispose a service: they render `SubscriptionViewState` and call the guarded
+`state.purchase` and `state.restore` commands. `SubscriptionBuilder` and
+`SubscriptionService` remain available for custom architectures.
 
 Copy the pieces that fit your app and replace their colors, text, product
-selection, and interaction behavior. For a different state-management setup,
-use `SubscriptionService.snapshotStream` or adapt the snapshots into your
-existing state layer. The optional BLoC package is not used here.
+selection, and interaction behavior. Add `SubscriptionCallbacks` for analytics,
+a `messageBuilder` for localized status text, and `PremiumGate` around premium
+features. The optional BLoC package is not used here.
 
 ## Connect real products
 
