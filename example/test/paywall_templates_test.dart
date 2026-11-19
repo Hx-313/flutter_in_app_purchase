@@ -22,31 +22,30 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     for (final kind in ['screen', 'dialog', 'sheet']) {
-      final service = _service();
-      await service.initialize();
       var closed = false;
       try {
         await tester.pumpWidget(
-          MaterialApp(
-            home: Builder(
-              builder: (context) => MediaQuery(
-                data: MediaQuery.of(
-                  context,
-                ).copyWith(textScaler: const TextScaler.linear(1.65)),
-                child: switch (kind) {
-                  'screen' => FullScreenPaywall(
-                    service: service,
-                    onClose: () => closed = true,
-                  ),
-                  'dialog' => DialogPaywall(
-                    service: service,
-                    onClose: () => closed = true,
-                  ),
-                  _ => BottomSheetPaywall(
-                    service: service,
-                    onClose: () => closed = true,
-                  ),
-                },
+          DemoSubscriptionHost(
+            store: SimulatedStoreDataSource(),
+            storage: SharedPreferencesSubscriptionStorageDataSource(),
+            builder: (context, _) => MaterialApp(
+              home: Builder(
+                builder: (context) => MediaQuery(
+                  data: MediaQuery.of(
+                    context,
+                  ).copyWith(textScaler: const TextScaler.linear(1.65)),
+                  child: switch (kind) {
+                    'screen' => FullScreenPaywall(
+                      onClose: () => closed = true,
+                    ),
+                    'dialog' => DialogPaywall(
+                      onClose: () => closed = true,
+                    ),
+                    _ => BottomSheetPaywall(
+                      onClose: () => closed = true,
+                    ),
+                  },
+                ),
               ),
             ),
           ),
@@ -67,14 +66,7 @@ void main() {
         expect(closed, isTrue, reason: kind);
       } finally {
         await tester.pumpWidget(const SizedBox.shrink());
-        await tester.runAsync(service.dispose);
       }
     }
   });
 }
-
-SubscriptionService _service() => SubscriptionModule.createService(
-  config: demoSubscriptionConfig,
-  store: SimulatedStoreDataSource(),
-  storage: SharedPreferencesSubscriptionStorageDataSource(),
-);

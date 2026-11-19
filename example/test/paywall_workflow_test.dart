@@ -13,40 +13,38 @@ void main() {
   testWidgets('locked feature purchase unlocks content and returns to it', (
     tester,
   ) async {
-    late _WorkflowStore store;
+    final store = _WorkflowStore();
+    final storage = _MemoryStorage();
     late SubscriptionService service;
     late Future<PurchaseResult> success;
-    await tester.runAsync(() async {
-      store = _WorkflowStore();
-      service = SubscriptionModule.createService(
-        config: demoSubscriptionConfig,
-        store: store,
-        storage: _MemoryStorage(),
-      );
-      await service.initialize();
-      success = service.purchaseResultStream.firstWhere(
-        (result) => result.status == PurchaseStatus.success,
-      );
-    });
     try {
       await tester.pumpWidget(
-        MaterialApp(
-          theme: buildIthxTheme(),
-          home: Builder(
-            builder: (context) => LockedFeatureScreen(
-              service: service,
-              onUnlock: () => Navigator.of(context).push<void>(
-                MaterialPageRoute<void>(
-                  builder: (routeContext) => FullScreenPaywall(
-                    service: service,
-                    onClose: () => Navigator.of(routeContext).pop(),
-                    onAccessGranted: () => Navigator.of(routeContext).pop(),
+        DemoSubscriptionHost(
+          store: store,
+          storage: storage,
+          builder: (context, hostService) {
+            service = hostService;
+            return MaterialApp(
+              theme: buildIthxTheme(),
+              home: Builder(
+                builder: (context) => LockedFeatureScreen(
+                  onUnlock: () => Navigator.of(context).push<void>(
+                    MaterialPageRoute<void>(
+                      builder: (routeContext) => FullScreenPaywall(
+                        onClose: () => Navigator.of(routeContext).pop(),
+                        onAccessGranted: () => Navigator.of(routeContext).pop(),
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ),
+            );
+          },
         ),
+      );
+      await tester.pumpAndSettle();
+      success = service.purchaseResultStream.firstWhere(
+        (result) => result.status == PurchaseStatus.success,
       );
       await tester.pumpAndSettle();
       expect(find.text('A quieter space for you'), findsOneWidget);

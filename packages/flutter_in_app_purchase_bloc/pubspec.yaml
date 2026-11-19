@@ -10,7 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  equatable: ^2.1.0
+  equatable: ^3.0.0
   smart_inapp_purchase:
     path: ../..
   flutter_bloc: ^8.1.6

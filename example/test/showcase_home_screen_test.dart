@@ -11,21 +11,18 @@ void main() {
     tester,
   ) async {
     SharedPreferences.setMockInitialValues({});
-    final service = SubscriptionModule.createService(
-      config: demoSubscriptionConfig,
-      store: TestStore(),
-      storage: SharedPreferencesSubscriptionStorageDataSource(),
-    );
-    await service.initialize();
     PaywallTemplate? selectedTemplate;
     var openedLockedFeature = false;
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: ShowcaseHomeScreen(
-          service: service,
-          onOpenTemplate: (template) => selectedTemplate = template,
-          onOpenLockedFeature: () => openedLockedFeature = true,
+      DemoSubscriptionHost(
+        store: TestStore(),
+        storage: SharedPreferencesSubscriptionStorageDataSource(),
+        builder: (context, _) => MaterialApp(
+          home: ShowcaseHomeScreen(
+            onOpenTemplate: (template) => selectedTemplate = template,
+            onOpenLockedFeature: () => openedLockedFeature = true,
+          ),
         ),
       ),
     );
@@ -43,7 +40,7 @@ void main() {
     await tester.tap(find.text('Try a locked feature'));
     expect(openedLockedFeature, isTrue);
 
-    await tester.runAsync(service.dispose);
+    await tester.pumpWidget(const SizedBox.shrink());
   });
 }
 
