@@ -1,30 +1,23 @@
-# Unreleased
+## 0.1.0
 
-* Add `SubscriptionProvider`, `SubscriptionView`, and `PremiumGate` so a host app
-  supplies only UI while the package owns service creation, initialization,
-  listening, callbacks, and disposal.
-* Add `SubscriptionCallbacks`, a `SubscriptionViewState` view model with guarded
-  purchase/restore commands, and an optional `messageBuilder` for localized text.
-* Acknowledge consumable purchases only after `onConsumablePurchased` returns
-  `true`, keeping failed fulfillment pending for retry.
-* `SubscriptionService.purchase` now returns a `PurchaseResult` (previously
-  `bool`) and resolves when the store reports an outcome; restore and
-  acknowledge calls report failures instead of throwing before initialization.
-* Expose immutable subscription snapshots and a state-neutral widget builder.
-* Move BLoC integration into the optional `smart_inapp_purchase_bloc` package.
-* Keep paywall presentation and navigation in the host app; move UI templates to the example.
-* Add an ITHX-branded showcase with a durable simulated purchase and restore flow.
-* Persist verified purchases before native completion and report rejected restores as failures.
-* Stage consumable deliveries until the host acknowledges fulfillment.
-* Anchor local non-renewing expiry to the store transaction date and expose store retry state.
-* Preserve purchase mapping diagnostics and cover purchase lifecycle reliability.
-
-This release removes the BLoC and opinionated paywall UI exports from the core
-package. Add `smart_inapp_purchase_bloc` separately if your app uses BLoC.
+* **Hands-off Subscription Integration**:
+  * Added `SubscriptionProvider`, `SubscriptionView`, and `PremiumGate` so host applications supply only UI while the package manages service creation, initialization, stream listening, callbacks, and disposal.
+  * Added `SubscriptionCallbacks`, `SubscriptionViewState` with guarded commands, and optional `SubscriptionMessageBuilder` for localized notifications.
+* **Consumable & Lifecycle Hardening**:
+  * Consumable purchases are acknowledged only after `onConsumablePurchased` returns `true`, persisting unfulfilled records until successfully delivered.
+  * `SubscriptionService.purchase` returns a strongly-typed `PurchaseResult` that resolves when the store reports an outcome.
+  * Restore and acknowledge operations report structured failures instead of throwing before initialization.
+  * Persist verified purchases before native store completion and report rejected restores as failures.
+  * Anchor local non-renewing subscription expiry to store transaction dates and expose store retry state.
+* **Architectural Decoupling**:
+  * Moved BLoC state management adapter into companion package `smart_inapp_purchase_bloc`.
+  * Moved demonstration UI templates, showcase screens, and design assets into the `example` app.
+* **Dependency Updates**:
+  * Upgraded dependencies to latest releases (`equatable: ^3.0.0`, `in_app_purchase_android: ^0.5.5`, `in_app_purchase_storekit: ^0.4.17`, `shared_preferences: ^2.5.6`).
 
 ## 0.0.1
 
-* Added configurable Android, iOS, and macOS purchase orchestration.
+* Initial release with cross-platform store abstraction for Android, iOS, and macOS.
 * Added consumable delivery results, durable entitlements, restore handling, and verification hooks.
-* Added `ChangeNotifier` scope/controller integration and a theme-aware subscription page.
-* Added an example app and platform setup documentation.
+* Added `ChangeNotifier` scope/controller integration and theme-aware subscription page.
+* Added example app and platform setup documentation.
