@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smart_inapp_purchase/smart_inapp_purchase.dart';
 
@@ -337,8 +337,9 @@ void main() {
           config: _config(),
           store: store,
           storage: TestSubscriptionStorage(),
-          child: const MaterialApp(
-            home: PremiumGate(locked: _lockedBuilder, child: Text('PRO')),
+          child: const Directionality(
+            textDirection: TextDirection.ltr,
+            child: PremiumGate(locked: _lockedBuilder, child: Text('PRO')),
           ),
         ),
       );

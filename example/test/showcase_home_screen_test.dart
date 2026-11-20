@@ -31,12 +31,15 @@ void main() {
     expect(find.text('01  Full-screen paywall'), findsOneWidget);
     expect(find.text('02  Paywall dialog'), findsOneWidget);
     expect(find.text('03  Paywall bottom sheet'), findsOneWidget);
+    expect(find.text('04  Cupertino paywall (iOS)'), findsOneWidget);
     await tester.drag(find.byType(ListView), const Offset(0, -400));
     await tester.pumpAndSettle();
     expect(find.text('Try a locked feature'), findsOneWidget);
 
     await tester.tap(find.text('02  Paywall dialog'));
     expect(selectedTemplate, PaywallTemplate.dialog);
+    await tester.tap(find.text('04  Cupertino paywall (iOS)'));
+    expect(selectedTemplate, PaywallTemplate.cupertino);
     await tester.tap(find.text('Try a locked feature'));
     expect(openedLockedFeature, isTrue);
 

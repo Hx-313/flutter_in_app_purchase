@@ -74,11 +74,13 @@ final class InAppPurchaseStoreDataSource implements StoreDataSource {
       products.map((product) => product.id).toSet(),
     );
     if (response.error != null) {
-      throw StateError(response.error!.message);
+      debugPrint(
+        'InAppPurchaseStoreDataSource: queryProductDetails error: ${response.error!.message}',
+      );
     }
     if (response.notFoundIDs.isNotEmpty && response.productDetails.isEmpty) {
-      throw StateError(
-        'No configured products were found: ${response.notFoundIDs.join(', ')}',
+      debugPrint(
+        'InAppPurchaseStoreDataSource: No configured products were found: ${response.notFoundIDs.join(', ')}',
       );
     }
 

@@ -6,6 +6,7 @@ import 'screens/locked_feature_screen.dart';
 import 'screens/showcase_home_screen.dart';
 import 'screens/splash_screen.dart';
 import 'templates/bottom_sheet_paywall.dart';
+import 'templates/cupertino_paywall.dart';
 import 'templates/dialog_paywall.dart';
 import 'templates/full_screen_paywall.dart';
 
@@ -64,6 +65,17 @@ class _ShowcaseRouter extends StatelessWidget {
           useSafeArea: true,
           backgroundColor: Colors.transparent,
           builder: (sheetContext) => BottomSheetPaywall(
+            onClose: () => Navigator.of(sheetContext).pop(),
+            onAccessGranted: () => Navigator.of(sheetContext).pop(),
+          ),
+        );
+      case PaywallTemplate.cupertino:
+        showModalBottomSheet<void>(
+          context: context,
+          isScrollControlled: true,
+          useSafeArea: true,
+          backgroundColor: Colors.transparent,
+          builder: (sheetContext) => CupertinoPaywall(
             onClose: () => Navigator.of(sheetContext).pop(),
             onAccessGranted: () => Navigator.of(sheetContext).pop(),
           ),

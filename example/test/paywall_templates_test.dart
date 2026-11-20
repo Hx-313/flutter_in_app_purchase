@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_in_app_purchase_example/demo/demo_subscription_host.dart';
 import 'package:flutter_in_app_purchase_example/demo/simulated_store_data_source.dart';
 import 'package:flutter_in_app_purchase_example/templates/bottom_sheet_paywall.dart';
+import 'package:flutter_in_app_purchase_example/templates/cupertino_paywall.dart';
 import 'package:flutter_in_app_purchase_example/templates/dialog_paywall.dart';
 import 'package:flutter_in_app_purchase_example/templates/full_screen_paywall.dart';
 
@@ -21,7 +22,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    for (final kind in ['screen', 'dialog', 'sheet']) {
+    for (final kind in ['screen', 'dialog', 'sheet', 'cupertino']) {
       var closed = false;
       try {
         await tester.pumpWidget(
@@ -39,6 +40,9 @@ void main() {
                       onClose: () => closed = true,
                     ),
                     'dialog' => DialogPaywall(
+                      onClose: () => closed = true,
+                    ),
+                    'cupertino' => CupertinoPaywall(
                       onClose: () => closed = true,
                     ),
                     _ => BottomSheetPaywall(

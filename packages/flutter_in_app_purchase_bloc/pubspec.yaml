@@ -13,7 +13,7 @@ dependencies:
   equatable: ^3.0.0
   smart_inapp_purchase:
     path: ../..
-  flutter_bloc: ^8.1.6
+  flutter_bloc: ">=8.1.6 <10.0.0"
 
 dev_dependencies:
   flutter_test:

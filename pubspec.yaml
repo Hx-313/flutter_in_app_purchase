@@ -2,6 +2,14 @@ name: smart_inapp_purchase
 description: "Cross-platform in-app purchases, durable entitlements, and verification hooks for Flutter."
 version: 0.1.0
 repository: https://github.com/Hx-313/flutter_in_app_purchase
+issue_tracker: https://github.com/Hx-313/flutter_in_app_purchase/issues
+
+topics:
+  - in-app-purchase
+  - subscriptions
+  - billing
+  - storekit
+  - paywall
 
 environment:
   sdk: ^3.12.2

@@ -3,7 +3,7 @@ import 'package:smart_inapp_purchase/smart_inapp_purchase.dart';
 
 import '../ithx_theme.dart';
 
-enum PaywallTemplate { fullScreen, dialog, bottomSheet }
+enum PaywallTemplate { fullScreen, dialog, bottomSheet, cupertino }
 
 class ShowcaseHomeScreen extends StatelessWidget {
   const ShowcaseHomeScreen({
@@ -62,7 +62,7 @@ class ShowcaseHomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Three app-owned layouts. One shared entitlement flow. Choose a template to preview.',
+              'Four app-owned layouts. One shared entitlement flow. Choose a template to preview.',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 color: IthxPalette.muted,
                 height: 1.45,
@@ -89,6 +89,13 @@ class ShowcaseHomeScreen extends StatelessWidget {
               description: 'A compact offer that keeps context visible.',
               icon: Icons.vertical_align_top_rounded,
               onTap: () => onOpenTemplate(PaywallTemplate.bottomSheet),
+            ),
+            _TemplateCard(
+              number: '04',
+              title: 'Cupertino paywall (iOS)',
+              description: 'Native iOS inset grouped style with haptic feedback.',
+              icon: Icons.apple_rounded,
+              onTap: () => onOpenTemplate(PaywallTemplate.cupertino),
             ),
             const SizedBox(height: 14),
             OutlinedButton.icon(

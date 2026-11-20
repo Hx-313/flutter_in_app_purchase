@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smart_inapp_purchase/smart_inapp_purchase.dart';
 import 'package:smart_inapp_purchase_bloc/smart_inapp_purchase_bloc.dart';
@@ -105,8 +105,9 @@ void main() {
     ]);
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: SubscriptionScope(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: SubscriptionScope(
           config: SubscriptionConfig(
             products: const [
               ProductDefinition(

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smart_inapp_purchase/smart_inapp_purchase.dart';
 
@@ -12,8 +12,9 @@ void main() {
       try {
         await service.initialize();
         await tester.pumpWidget(
-          MaterialApp(
-            home: SubscriptionBuilder(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: SubscriptionBuilder(
               service: service,
               builder: (context, snapshot) => Text(snapshot.phase.name),
             ),
@@ -22,7 +23,7 @@ void main() {
 
         expect(find.text('ready'), findsOneWidget);
       } finally {
-        await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
+        await tester.pumpWidget(const SizedBox.shrink());
         await tester.runAsync(service.dispose);
       }
     },
@@ -36,8 +37,9 @@ void main() {
     try {
       await service.initialize();
       await tester.pumpWidget(
-        MaterialApp(
-          home: SubscriptionBuilder(
+        Directionality(
+          textDirection: TextDirection.ltr,
+          child: SubscriptionBuilder(
             service: service,
             builder: (context, snapshot) {
               buildCount++;
@@ -53,12 +55,12 @@ void main() {
       expect(find.text('notAvailable'), findsOneWidget);
 
       final buildsBeforeRemoval = buildCount;
-      await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
+      await tester.pumpWidget(const SizedBox.shrink());
       await service.purchase('still-not-configured');
       await tester.pump();
       expect(buildCount, buildsBeforeRemoval);
     } finally {
-      await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
+      await tester.pumpWidget(const SizedBox.shrink());
       await tester.runAsync(service.dispose);
     }
   });
